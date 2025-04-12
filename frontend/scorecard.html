@@ -162,7 +162,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 console.log('Attempting to retrieve exam data...');
-                const examDataStr = localStorage.getItem('examData');
+                const examDataStr = localStorage.getItem('examResults');
                 console.log('Raw exam data from localStorage:', examDataStr);
                 
                 if (!examDataStr) {
@@ -170,19 +170,17 @@
                 }
                 
                 const examData = JSON.parse(examDataStr);
-                console.log('Parsed exam data:', examData);
-                
-                if (!examData || !examData.questionDetails) {
-                    throw new Error('Invalid exam data format');
-                }
-                
                 const container = document.getElementById('results-container');
-                if (!container) {
-                    throw new Error('Results container not found');
+                
+                if (!examData || !examData.score || !examData.totalQuestions) {
+                    throw new Error('Invalid exam data format');
                 }
                 
                 const minutes = Math.floor(examData.timeSpent / 60);
                 const seconds = examData.timeSpent % 60;
+                
+                // Calculate percentage
+                const percentage = (examData.score / examData.totalQuestions) * 100;
                 
                 // Summary section
                 container.innerHTML = `
@@ -204,7 +202,7 @@
                         </div>
                     </div>
                     <div class="final-score">
-                        <h2>Final Score: ${(examData.percentage || 0).toFixed(1)}%</h2>
+                        <h2>Final Score: ${percentage.toFixed(1)}%</h2>
                     </div>
                     ${examData.questionDetails.length > 0 ? `
                         <div class="question-analysis">
@@ -250,7 +248,7 @@
                 `;
 
                 console.log('Results rendered successfully');
-                localStorage.removeItem('examData');
+                localStorage.removeItem('examResults'); // Clear the results after showing them
                 console.log('Exam data cleared from localStorage');
                 
             } catch (error) {

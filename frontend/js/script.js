@@ -37,8 +37,16 @@ function getQuestionStatus() {
 
 // User database (in real app, this would be in a secure backend)
 const users = [
-    { username: "student1", password: "pass123" },
-    { username: "student2", password: "pass456" }
+    { username: "akshat", password: "akshat2005" },
+    { username: "ayush", password: "arsi2006" },
+    { username: "S.Ranjan", password: "sranjan2007" },
+    { username: "satyam", password: "satyam2006" },
+    { username: "dwivedi", password: "dwivedi2006" },
+    { username: "jimson", password: "mathew" },
+    { username: "mayank", password: "sah" },
+    { username: "ankit", password: "ankit2007" },
+    { username: "amrita", password: "amrita2003" },
+    { username: "amresh", password: "amresh2000" }
 ];
 
 // Questions database
@@ -271,55 +279,39 @@ async function submitExam() {
         // Calculate score and prepare detailed results
         let score = 0;
         const questionDetails = questions.map((question, index) => {
-            const isCorrect = userAnswers[index] === question.correct;
+            // If question is unanswered, treat it as incorrect
+            const userAnswer = userAnswers[index] === -1 ? null : userAnswers[index];
+            const isCorrect = userAnswer === question.correct;
             if (isCorrect) score++;
             
             return {
                 questionNumber: index + 1,
                 questionText: question.text,
                 options: question.options,
-                userAnswer: userAnswers[index],
+                userAnswer: userAnswer,
                 correctAnswer: question.correct,
                 isCorrect: isCorrect,
-                explanation: question.explanation || 'No explanation provided'
+                explanation: question.explanation
             };
         });
         
-        // Save exam data
+        // Save results to localStorage
         const examData = {
             score,
             totalQuestions: questions.length,
-            percentage: (score / questions.length) * 100,
+            questionDetails,
             timeSpent: 1800 - timeLeft,
-            questionDetails: questionDetails
+            username: localStorage.getItem('username')
         };
         
-        // Debug logging
-        console.log('Exam Data to save:', examData);
-        
-        // Save to localStorage and verify it was saved
-        localStorage.setItem('examData', JSON.stringify(examData));
-        const savedData = localStorage.getItem('examData');
-        
-        // Debug logging
-        console.log('Saved Data retrieved:', savedData ? JSON.parse(savedData) : 'No data found');
-        
-        if (!savedData) {
-            throw new Error('Failed to save exam data');
-        }
-        
-        // Ensure data is properly saved before redirecting
-        const parsedData = JSON.parse(savedData);
-        if (!parsedData.score || !parsedData.totalQuestions || !parsedData.questionDetails) {
-            throw new Error('Exam data is incomplete');
-        }
+        localStorage.setItem('examResults', JSON.stringify(examData));
         
         // Redirect to scorecard
         console.log('Redirecting to scorecard...');
         window.location.href = 'scorecard.html';
     } catch (error) {
         console.error('Error in submitExam:', error);
-        showError('Failed to submit exam: ' + error.message);
+        showError('Failed to submit exam. Please try again.');
     }
 }
 
