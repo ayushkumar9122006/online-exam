@@ -49,80 +49,32 @@ const users = [
     { username: "amresh", password: "amresh2000" }
 ];
 
-// Questions database
-const questionsData = [
-    {
-        "id": 1,
-        "text": "What is 2+2?",
-        "options": ["3", "4", "5", "6"],
-        "correct": 1,
-        "explanation": "Four is the sum of two plus two, which is a basic arithmetic operation."
-    },
-    {
-        "id": 2,
-        "text": "What is the capital of France?",
-        "options": ["London", "Paris", "Berlin", "Madrid"],
-        "correct": 1,
-        "explanation": "Paris is the capital and largest city of France."
-    },
-    {
-        "id": 3,
-        "text": "Which planet is largest?",
-        "options": ["Mars", "Jupiter", "Saturn", "Earth"],
-        "correct": 1,
-        "explanation": "Jupiter is the largest planet in our solar system."
-    }
-];
-
-// Handle login
-function handleLogin(event) {
-    event.preventDefault();
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const errorMsg = document.getElementById('errorMsg');
-
-    console.log('Login attempt for username:', username);
-
-    if (!username || !password) {
-        errorMsg.textContent = 'Please enter both username and password';
-        errorMsg.style.display = 'block';
-        return;
-    }
-
-    // Find user (case-insensitive username comparison)
-    const user = users.find(u => 
-        u.username.toLowerCase() === username.toLowerCase() && 
-        u.password === password
-    );
-
-    console.log('User found:', user ? 'yes' : 'no');
-
-    if (user) {
-        console.log('Login successful');
-        localStorage.setItem('loggedIn', 'true');
-        localStorage.setItem('username', user.username); // Store original username case
-        window.location.href = 'instructions.html';
-    } else {
-        console.log('Login failed');
-        errorMsg.textContent = 'Invalid username or password';
-        errorMsg.style.display = 'block';
-        // Clear the password field
-        document.getElementById('password').value = '';
-    }
-}
+// Load questions from questions.js
+// Remove import statement since we're using window.questionsData
+// import { getRandomQuestionsFromData } from './questions.js';
 
 // Load questions (now uses static data)
 async function loadQuestions() {
     try {
         debug('Loading questions...');
-        questions = [...questionsData]; // Create a copy of the questions
+        
+        // Wait for questions to be available
+        if (!window.questionsData) {
+            debug('ERROR: questionsData not found in window object');
+            throw new Error('Questions data not loaded');
+        }
+        
+        debug('Found questionsData:', window.questionsData);
+        questions = [...window.questionsData]; // Create a copy of the questions
+        debug('Copied questions array:', questions);
         
         if (!questions || questions.length === 0) {
+            debug('ERROR: No questions available after copy');
             throw new Error('No questions available');
         }
         
         userAnswers = new Array(questions.length).fill(-1);
-        debug(`Loaded ${questions.length} questions`);
+        debug(`Loaded ${questions.length} questions successfully`);
         
         renderQuestion();
         buildQuestionPalette();
@@ -131,7 +83,7 @@ async function loadQuestions() {
         
     } catch (error) {
         console.error('Error loading questions:', error);
-        showError('Failed to load questions');
+        showError('Failed to load questions. Please refresh the page.');
     }
 }
 
@@ -300,8 +252,7 @@ async function submitExam() {
         // Calculate score and prepare detailed results
         let score = 0;
         const questionDetails = questions.map((question, index) => {
-            // If question is unanswered, treat it as incorrect
-            const userAnswer = userAnswers[index] === -1 ? null : userAnswers[index];
+            const userAnswer = userAnswers[index] === undefined ? -1 : userAnswers[index];
             const isCorrect = userAnswer === question.correct;
             if (isCorrect) score++;
             
@@ -309,8 +260,8 @@ async function submitExam() {
                 questionNumber: index + 1,
                 questionText: question.text,
                 options: question.options,
-                userAnswer: userAnswer,
-                correctAnswer: question.correct,
+                userAnswer: userAnswer === -1 ? "Not answered" : question.options[userAnswer],
+                correctAnswer: question.options[question.correct],
                 isCorrect: isCorrect,
                 explanation: question.explanation
             };
@@ -333,6 +284,43 @@ async function submitExam() {
     } catch (error) {
         console.error('Error in submitExam:', error);
         showError('Failed to submit exam. Please try again.');
+    }
+}
+
+// Handle login
+function handleLogin(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('errorMsg');
+
+    console.log('Login attempt for username:', username);
+
+    if (!username || !password) {
+        errorMsg.textContent = 'Please enter both username and password';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    // Find user (case-insensitive username comparison)
+    const user = users.find(u => 
+        u.username.toLowerCase() === username.toLowerCase() && 
+        u.password === password
+    );
+
+    console.log('User found:', user ? 'yes' : 'no');
+
+    if (user) {
+        console.log('Login successful');
+        localStorage.setItem('loggedIn', 'true');
+        localStorage.setItem('username', user.username); // Store original username case
+        window.location.href = 'instructions.html';
+    } else {
+        console.log('Login failed');
+        errorMsg.textContent = 'Invalid username or password';
+        errorMsg.style.display = 'block';
+        // Clear the password field
+        document.getElementById('password').value = '';
     }
 }
 
