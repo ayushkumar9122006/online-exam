@@ -140,7 +140,15 @@
     </div>
     <script src="js/script.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        // Wait for DOM and script.js to load
+        window.addEventListener('load', function() {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm && typeof handleLogin === 'function') {
+                loginForm.addEventListener('submit', handleLogin);
+            } else {
+                console.error('Login form or handleLogin function not found');
+            }
+        });
     </script>
 </body>
 </html>

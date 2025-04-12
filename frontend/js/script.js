@@ -81,19 +81,33 @@ function handleLogin(event) {
     const password = document.getElementById('password').value;
     const errorMsg = document.getElementById('errorMsg');
 
+    console.log('Login attempt for username:', username);
+
+    if (!username || !password) {
+        errorMsg.textContent = 'Please enter both username and password';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
     // Find user (case-insensitive username comparison)
     const user = users.find(u => 
         u.username.toLowerCase() === username.toLowerCase() && 
         u.password === password
     );
 
+    console.log('User found:', user ? 'yes' : 'no');
+
     if (user) {
+        console.log('Login successful');
         localStorage.setItem('loggedIn', 'true');
-        localStorage.setItem('username', username);
+        localStorage.setItem('username', user.username); // Store original username case
         window.location.href = 'instructions.html';
     } else {
+        console.log('Login failed');
         errorMsg.textContent = 'Invalid username or password';
         errorMsg.style.display = 'block';
+        // Clear the password field
+        document.getElementById('password').value = '';
     }
 }
 
