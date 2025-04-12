@@ -142,13 +142,21 @@
         // User database
         const users = [
             { username: "student1", password: "pass123" },
-            { username: "student2", password: "pass456" }
+            { username: "student2", password: "pass456" },
+            { username: "student3", password: "pass789" },
+            { username: "student4", password: "pass321" },
+            { username: "student5", password: "pass654" },
+            { username: "student6", password: "pass987" },
+            { username: "student7", password: "pass147" },
+            { username: "student8", password: "pass258" },
+            { username: "student9", password: "pass369" },
+            { username: "student10", password: "pass741" }
         ];
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value.trim();
+            const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value.trim();
             const errorMsg = document.getElementById('errorMsg');
             const loginButton = document.getElementById('loginButton');
@@ -158,8 +166,8 @@
                 return;
             }
             
-            // Check credentials
-            const user = users.find(u => u.username === username && u.password === password);
+            // Check credentials (case-insensitive username comparison)
+            const user = users.find(u => u.username.toLowerCase() === username && u.password === password);
             if (user) {
                 // Login successful
                 localStorage.setItem('loggedIn', 'true');
@@ -168,6 +176,8 @@
             } else {
                 // Login failed
                 errorMsg.textContent = 'Invalid username or password';
+                // Clear the password field
+                document.getElementById('password').value = '';
             }
         });
     </script>
