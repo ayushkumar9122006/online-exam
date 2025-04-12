@@ -1,49 +1,3 @@
-// Function to parse questions from text format
-function parseQuestions(text) {
-    return text.split('\n').map(line => {
-        const [id, text, ...rest] = line.split('|');
-        const options = rest.slice(0, -2); // Remove correct answer and explanation
-        const correct = parseInt(rest[rest.length - 2]) - 1; // Convert to 0-based index
-        const explanation = rest[rest.length - 1]; // Get the explanation
-        
-        return {
-            id: parseInt(id),
-            text,
-            options,
-            correct,
-            explanation
-        };
-    });
-}
-
-// Function to fetch questions from file
-async function fetchQuestions() {
-    try {
-        const response = await fetch('/backend/questions.txt');
-        if (!response.ok) {
-            throw new Error('Failed to load questions');
-        }
-        const text = await response.text();
-        return parseQuestions(text);
-    } catch (error) {
-        console.error('Error loading questions:', error);
-        return [];
-    }
-}
-
-// Function to get random questions
-async function getRandomQuestions(count = 5) {
-    const questions = await fetchQuestions();
-    if (questions.length === 0) return [];
-    
-    if (count > questions.length) count = questions.length;
-    
-    // Shuffle and return requested number of questions
-    return [...questions]
-        .sort(() => 0.5 - Math.random())
-        .slice(0, count);
-}
-
 // Questions database
 const questionsData = [
     {
@@ -83,10 +37,10 @@ const questionsData = [
     },
     {
         "id": 6,
-        "text": "What is the time complexity of  heap sort ?",
+        "text": "What is the time complexity of heap sort?",
         "options": ["O(log(n))", "O(n^2log(n))", "O(nlog(n))", "O(n)"],
         "correct": 2,
-        "explanation": "Heap sort works in two main steps:\n1.Build the Heap (Max-Heap or Min-Heap)\nYou take the unsorted array and turn it into a heap.\nThis is done using the heapify method from the last non-leaf node up to the root.\nTime complexity: O(n) (not O(n log n), because lower levels need less work).\n\n2.Extract Elements One by OneRemove the root (max or min), place it at the end of the array.\nThen heapify-down to restore the heap property.\nYou do this n times, and each heapify takes O(log n) time.\nTime complexity: n * O(log n) = O(n log n)\n\n\nTotal Time:Build Heap: O(n)Extract Elements: O(n log n)Total = O(n + n log n) = O(n log n)"
+        "explanation": "Heap sort has O(nlog(n)) time complexity due to heapify operations."
     },
     {
         "id": 7,
@@ -107,7 +61,7 @@ const questionsData = [
         "text": "Dijkstra's algorithm fails with which type of weights?",
         "options": ["Zero", "Positive", "Negative", "Mixed"],
         "correct": 2,
-        "explanation": "Dijkstra’s does not work with negative edge weights."
+        "explanation": "Dijkstra's does not work with negative edge weights."
     },
     {
         "id": 10,
@@ -153,27 +107,5 @@ const questionsData = [
     }
 ];
 
-// Export for use in other files
+// Make questions available globally
 window.questionsData = questionsData;
-
-// Function to get questions from data
-function getQuestionsFromData() {
-    return window.questionsData;
-}
-
-// Function to get random questions from data
-function getRandomQuestionsFromData(count = 15) {
-    const questions = getQuestionsFromData();
-    if (questions.length === 0) return [];
-    
-    if (count > questions.length) count = questions.length;
-    
-    // Shuffle and return requested number of questions
-    return [...questions]
-        .sort(() => 0.5 - Math.random())
-        .slice(0, count);
-}
-
-// Export for use in other files
-window.getRandomQuestions = getRandomQuestions;
-window.getRandomQuestionsFromData = getRandomQuestionsFromData;
