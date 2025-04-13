@@ -32,7 +32,7 @@ function getQuestionStatus() {
     if (userAnswers[currentQuestion] !== -1) {
         return 'Answered';
     }
-    return 'Not Answered';
+    //return 'Not Answered';
 }
 
 // User database (in real app, this would be in a secure backend)
